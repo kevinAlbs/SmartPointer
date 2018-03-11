@@ -26,4 +26,6 @@ int main() {
 	test_single();
     test_multiple();
     test_nested();
+    /* test that free_on_exit works from main. */
+    char *x = (char*) free_on_exit(malloc(sizeof(char)));
 }
