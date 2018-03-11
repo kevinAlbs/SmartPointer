@@ -22,3 +22,16 @@ https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64
 
 GNU Assembler Syntax
 https://en.wikibooks.org/wiki/X86_Assembly/GAS_Syntax
+
+x86 Assembly Guide (Intel Syntax)
+http://www.cs.virginia.edu/~evans/cs216/guides/x86.html
+
+Eli Bendersky: Using goto for error handling in C
+https://eli.thegreenplace.net/2009/04/27/using-goto-for-error-handling-in-c
+
+# Outline
+This article explores
+- why smart pointers are good.
+    - example in C
+    - example in C++
+- 

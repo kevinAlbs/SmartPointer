@@ -1,6 +1,7 @@
 #include "smart.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 // These limits are arbitrary. This is static sizes for simplicity.
 #define STACK_SIZE 256
@@ -27,7 +28,7 @@ garbage_stack_t garbage = {0};
 
 int do_free() {
 	printf("Now time to free\n");
-	printf("Let's determine if this is the right stack frame.");
+	printf("Let's determine if this is the right stack frame.\n");
 	// I think it's safe to assume that the top of the stack has the right address to return to.
 	garbage_stack_entry_t* entry = garbage.stack + (garbage.tail - 1);
 	garbage.tail--; // pop
@@ -38,7 +39,7 @@ int do_free() {
 	return entry->caller_eip;
 }
 
-void free_on_exit(void* entry) {
+void* free_on_exit(void* entry) {
 	// first let's get the return address of the caller, and also hijack it to ours.
 	int ret_addr = 0;
 	int do_free_addr = (int)&do_free;
@@ -63,7 +64,7 @@ void free_on_exit(void* entry) {
 	: // clobbered
 	);
 
-	f0_ebp = *(f1_ebp);
+	f0_ebp = (int*) *(f1_ebp);
 	f0_eip = *(f1_ebp + 1); // four bytes up the stack. It is pushed by f0.
 
 	// This should (hopefully) point to correct location.
@@ -71,27 +72,27 @@ void free_on_exit(void* entry) {
 
 	// Hijack f0's eip to return to do_free.
 	// Not this may have already been done on a previous call to free_on_exit.
-	*(f1_ebp + 1) = (int*) thunk;
+	*(f1_ebp + 1) = (int) thunk;
 
-	printf("hijacked eip");
+	printf("hijacked eip\n");
 
 	// Check if there is already a stack entry for this frame. Identified by
 	// f0_ebp because we lose the eip, and when we get to do_free we've popped f1's ebp.
 	garbage_stack_entry_t* garbage_entry;
-	if (garbage.tail == 0) {
-		garbage_entry = garbage.stack + garbage.tail++;
-		garbage_entry->caller_ebp = f0_ebp;
-		garbage_entry->caller_eip = f0_eip;
-	} else if (garbage.stack[garbage.tail - 1].caller_ebp == f0_ebp) {
+	if (garbage.stack[garbage.tail - 1].caller_ebp == f0_ebp) {
 		// re-use.
+		printf("already have entry\n");
 		garbage_entry = garbage.stack + garbage.tail - 1;
 	} else {
+		printf("making new entry\n");
 		// make a new entry.
 		garbage_entry = garbage.stack + garbage.tail++;
+		memset (garbage_entry, 0, sizeof(*garbage_entry));
 		garbage_entry->caller_ebp = f0_ebp;
 		garbage_entry->caller_eip = f0_eip;
 	}
 
 	// TODO: check bounds.
 	garbage_entry->tracked_pointers[garbage_entry->tail++] = entry;
+	return entry;
 }

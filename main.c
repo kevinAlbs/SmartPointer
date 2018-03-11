@@ -4,11 +4,11 @@
 #include <stdlib.h>
 
 void f1() {
-    printf("enter f1");
+    printf("enter f1\n");
     int f1local = 0xF1;
     int *x = malloc(sizeof(int));
     free_on_exit((void*)x);
-    printf("exit f1");
+    printf("exit f1\n");
 }
 
 void f0() {
