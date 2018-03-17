@@ -20,27 +20,21 @@ typedef struct {
 } tracked_stack_t;
 
 /* forward declare the assembly trampoline. */
-void
-trampoline ();
+void trampoline ();
 
 tracked_stack_t tracked = {0};
 
-int
-do_free ()
-{
+int do_free () {
    tracked_stack_entry_t *entry = tracked.stack + (tracked.tail - 1);
    tracked.tail--; /* pop. */
    for (int i = 0; i < MAX_PER_FRAME; i++) {
-      if (entry->tracked_pointers[i] == 0)
-         break;
+      if (entry->tracked_pointers[i] == 0) break;
       free (entry->tracked_pointers[i]);
    }
    return entry->caller_eip;
 }
 
-void *
-free_on_exit (void *entry)
-{
+void *free_on_exit (void *entry) {
    int ret_addr = 0;
    int do_free_addr = (int) &do_free;
    int *caller_ebp;
