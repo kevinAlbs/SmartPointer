@@ -40,9 +40,9 @@ void *free_on_exit (void *entry) {
    int *caller_ebp;
 
    /* get the value of ebp. */
-   __asm__ __volatile__("movl (%%ebp), %0 \n"
-                        : "=r"(caller_ebp) /* output. */
-                        );
+   __asm__("movl (%%ebp), %0 \n"
+           : "=r"(caller_ebp) /* output. */
+           );
 
    /* check if there is a pre-existing stack entry for this caller
     * (identified by caller's ebp). */
